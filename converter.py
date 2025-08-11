@@ -104,12 +104,12 @@ def convert_file(input_path):
     author = song_data.get('author')
     transcribed_by = song_data.get('transcribedBy')
     
-    # Combine author and transcribedBy
+    # Format subtitle with labels
     subtitle_parts = []
     if author:
-        subtitle_parts.append(author)
+        subtitle_parts.append(f"Author: {author}")
     if transcribed_by:
-        subtitle_parts.append(transcribed_by)
+        subtitle_parts.append(f"Transcribed by: {transcribed_by}")
     subtitle = " | ".join(subtitle_parts) if subtitle_parts else None
     
     # Process notes
@@ -676,9 +676,7 @@ def convert_file(input_path):
         </div>
     </div>
     
-    <footer data-translate="footer">
-        &copy; {current_year} | Support my work on <a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter">GitHub</a>
-    </footer>
+    <footer data-translate="footer"></footer>
 </body>
 </html>"""
     
