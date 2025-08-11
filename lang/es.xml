@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>Idioma</language>
+    <keyboard>Teclado</keyboard>
+    <notes>Notas: {notes_count} | Duración: {duration}</notes>
+    <legend>Leyenda del teclado: Las teclas marcadas en rojo en un acorde deben pulsarse simultáneamente</legend>
+    <start>COMIENZO</start>
+    <end>FIN</end>
+    <print>Imprimir</print>
+    <footer>&amp;copy; {year} | Apoya mi trabajo en &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>

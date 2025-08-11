@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>Langue</language>
+    <keyboard>Clavier</keyboard>
+    <notes>Notes: {notes_count} | Durée: {duration}</notes>
+    <legend>Légende clavier: Les touches en rouge doivent être enfoncées simultanément</legend>
+    <start>DÉBUT</start>
+    <end>FIN</end>
+    <print>Imprimer</print>
+    <footer>&amp;copy; {year} | Soutenez mon travail sur &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>

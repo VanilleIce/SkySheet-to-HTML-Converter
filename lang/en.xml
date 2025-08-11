@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>Language</language>
+    <keyboard>Keyboard</keyboard>
+    <notes>Notes: {notes_count} | Duration: {duration}</notes>
+    <legend>Keyboard legend: The keys marked in red in a chord must be pressed simultaneously</legend>
+    <start>START</start>
+    <end>END</end>
+    <print>Print</print>
+    <footer>&amp;copy; {year} | Support my work on &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>

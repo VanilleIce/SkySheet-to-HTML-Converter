@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>Sprache</language>
+    <keyboard>Tastatur</keyboard>
+    <notes>Noten: {notes_count} | Dauer: {duration}</notes>
+    <legend>Tastatur-Legende: Die in einem Akkord rot markierten Tasten müssen gleichzeitig gedrückt werden</legend>
+    <start>ANFANG</start>
+    <end>ENDE</end>
+    <print>Drucken</print>
+    <footer>&amp;copy; {year} | Unterstütze meine Arbeit auf &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>

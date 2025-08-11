@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>言語</language>
+    <keyboard>キーボード</keyboard>
+    <notes>音符: {notes_count} | 持続時間: {duration}</notes>
+    <legend>キーボードの凡例: 和音で赤でマークされたキーは同時に押す必要があります</legend>
+    <start>開始</start>
+    <end>終了</end>
+    <print>印刷</print>
+    <footer>&amp;copy; {year} | 私の作業を&lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;でサポートしてください</footer>
+</translations>

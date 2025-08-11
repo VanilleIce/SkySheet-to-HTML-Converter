@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>اللغة</language>
+    <keyboard>لوحة المفاتيح</keyboard>
+    <notes>النوتات: {notes_count} | المدة: {duration}</notes>
+    <legend>شرح لوحة المفاتيح: يجب الضغط على المفاتيح المحددة باللون الأحمر في الوتر في نفس الوقت</legend>
+    <start>البداية</start>
+    <end>النهاية</end>
+    <print>طباعة</print>
+    <footer>&amp;copy; {year} | ادعم عملي على &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>

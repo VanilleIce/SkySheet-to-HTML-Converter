@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<translations>
+    <language>Язык</language>
+    <keyboard>Клавиатура</keyboard>
+    <notes>Ноты: {notes_count} | Продолжительность: {duration}</notes>
+    <legend>Легенда клавиатуры: клавиши, отмеченные красным цветом в аккорде, необходимо нажимать одновременно</legend>
+    <start>НАЧАЛО</start>
+    <end>КОНЕЦ</end>
+    <print>Печать</print>
+    <footer>&amp;copy; {year} | Поддержите мою работу на &lt;a href="https://github.com/VanilleIce/SkySheet-to-HTML-Converter"&gt;GitHub&lt;/a&gt;</footer>
+</translations>
