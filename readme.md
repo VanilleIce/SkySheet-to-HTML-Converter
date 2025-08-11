@@ -8,7 +8,7 @@ Converts SkySheet files into interactive HTML pages with keyboard views.
 - 🌍 **Multilingual support** - Built-in translations for 7 languages
 - 🖨️ **Print-optimised output** - Creates print-friendly scores
 - 🎚️ **Customisable layouts** - Support for QWERTZ, QWERTY, AZERTY and more
-- 📱 **Responsive design** - Works on desktop and mobile devices
+- 📱 **Responsive design** - the HTML works on desktop and mobile devices
 
 
 ## Installation
