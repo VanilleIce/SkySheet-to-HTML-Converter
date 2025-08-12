@@ -17,7 +17,7 @@ Thank you for considering contributing to **SkySheet to HTML Converter**! This g
 
 ### 🔀 Fork & Download the Repository
 
-1. Go to the [Project Lyrica GitHub page](https://github.com/VanilleIce/SkySheet-to-HTML-Converter/) and click **"Fork"** in the top right.
+1. Go to the [SkySheet to HTML-Converter GitHub page](https://github.com/VanilleIce/SkySheet-to-HTML-Converter/) and click **"Fork"** in the top right.
 2. Download the repository as a `.zip` file and extract it locally.
 
 ---
