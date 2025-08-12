@@ -410,14 +410,14 @@ def convert_file(input_path):
                 font-size: 20pt !important;
                 width: 80px !important;
                 height: 35px !important;
-                line-height: 35px !important; /* Zentrierung im Druckmodus */
+                line-height: 35px !important;
             }}
             .key.active {{
                 background-color: #ffe6e6 !important;
                 border: 2px solid #cc0000 !important;
             }}
             .key-label {{
-                text-align: center !important; /* Zentrierung im Druckmodus */
+                text-align: center !important;
             }}
             h1 {{
                 color: #000 !important;
