@@ -14,8 +14,7 @@ if "%~1"=="" (
     echo ERROR: No file specified!
     echo.
     echo USAGE:
-    echo   1. Drag file onto this batch file
-    echo   2. Or run: %~n0 "file.skysheet"
+    echo   1. Drag file onto this batch/exe file
     echo.
     echo CUSTOM LAYOUT:
     echo   Place custom.xml next to converter.bat
