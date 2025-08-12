@@ -81,6 +81,33 @@ def load_custom_layout():
             return None
     return None
 
+def load_skysheet_file(file_path):
+    """Load SkySheet file with robust encoding detection"""
+    # First try UTF-16 with BOM support
+    try:
+        with open(file_path, 'r', encoding='utf-16') as f:
+            return json.load(f)
+    except UnicodeDecodeError:
+        pass
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON format: {str(e)}")
+    
+    # Then try UTF-8 with BOM support
+    try:
+        with open(file_path, 'r', encoding='utf-8-sig') as f:
+            return json.load(f)
+    except UnicodeDecodeError:
+        pass
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Invalid JSON format: {str(e)}")
+    
+    # Finally try UTF-8 without BOM
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        raise ValueError(f"Unsupported file encoding: {str(e)}")
+
 def convert_file(input_path):
     """Convert SkySheet file to interactive HTML"""
     # Load translations and custom layout
@@ -88,9 +115,12 @@ def convert_file(input_path):
     custom_layout = load_custom_layout()
     has_custom_layout = custom_layout is not None
     
-    # Load song data
-    with open(input_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    # Load song data with encoding detection
+    try:
+        data = load_skysheet_file(input_path)
+    except ValueError as e:
+        print(f"Error loading file: {str(e)}")
+        sys.exit(1)
     
     song_data = data[0]
     notes = song_data['songNotes']
