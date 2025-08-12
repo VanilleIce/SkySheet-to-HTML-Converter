@@ -111,6 +111,8 @@ def convert_file(input_path):
     if transcribed_by:
         subtitle_parts.append(f"Transcribed by: {transcribed_by}")
     subtitle = " | ".join(subtitle_parts) if subtitle_parts else None
+
+    safe_song_name = song_name.replace('"', '\\"').replace("'", "\\'")
     
     # Process notes
     processed_notes = []
@@ -350,11 +352,10 @@ def convert_file(input_path):
                 margin-right: 0.5cm;
                 size: auto;
                 @top-center {{
-                    content: "";
+                    content: "{safe_song_name}";
                     font-size: 16pt;
                     color: #000;
                     font-weight: bold;
-                    margin-top: 0.5cm;
                 }}
                 @bottom-center {{
                     content: "© {current_year} | Support my work on GitHub | Page " counter(page);
@@ -363,10 +364,17 @@ def convert_file(input_path):
                     font-weight: bold;
                 }}
             }}
+            
+            @page :first {{
+                @top-center {{
+                    content: "";
+                }}
+            }}
+            
             body {{
                 background-color: white !important;
                 padding: 5px !important;
-                padding-top: 0 !important;
+                padding-top: 0.5cm !important;  /* Wichtig für den Abstand zur Kopfzeile */
                 color: #000 !important;
                 font-size: 10pt;
             }}
@@ -402,10 +410,14 @@ def convert_file(input_path):
                 font-size: 20pt !important;
                 width: 80px !important;
                 height: 35px !important;
+                line-height: 35px !important; /* Zentrierung im Druckmodus */
             }}
             .key.active {{
                 background-color: #ffe6e6 !important;
                 border: 2px solid #cc0000 !important;
+            }}
+            .key-label {{
+                text-align: center !important; /* Zentrierung im Druckmodus */
             }}
             h1 {{
                 color: #000 !important;
