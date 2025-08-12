@@ -174,7 +174,6 @@ def convert_file(input_path):
             background-color: #121212;
             color: #e0e0e0;
             position: relative;
-            /* padding-top: 80px; removed */
         }}
         .container {{
             max-width: 1400px;
@@ -374,7 +373,7 @@ def convert_file(input_path):
             body {{
                 background-color: white !important;
                 padding: 5px !important;
-                padding-top: 0.5cm !important;  /* Wichtig für den Abstand zur Kopfzeile */
+                padding-top: 0.5cm !important;
                 color: #000 !important;
                 font-size: 10pt;
             }}
@@ -452,13 +451,13 @@ def convert_file(input_path):
         }}
     </style>
     <script>
+        // Global variables for translation data
+        const notesCount = {len(processed_notes)};
+        const durationStr = {json.dumps(duration_str)};
+        
         // Layout definitions
         const layouts = {{
-            "QWERTZ": {{
-                "Key0": "z", "Key1": "u", "Key2": "i", "Key3": "o", "Key4": "p",
-                "Key5": "h", "Key6": "j", "Key7": "k", "Key8": "l", "Key9": "ö",
-                "Key10": "n", "Key11": "m", "Key12": ",", "Key13": ".", "Key14": "-"
-            }},
+            "QWERTZ": {json.dumps(DEFAULT_LAYOUT)},
             "QWERTY": {{
                 "Key0": "y", "Key1": "u", "Key2": "i", "Key3": "o", "Key4": "p",
                 "Key5": "h", "Key6": "j", "Key7": "k", "Key8": "l", "Key9": ";",
@@ -553,12 +552,18 @@ def convert_file(input_path):
                 const key = el.getAttribute('data-translate');
                 if (langData[key]) {{
                     let text = langData[key]
-                        .replace("{{notes_count}}", "{len(processed_notes)}")
-                        .replace("{{duration}}", "{duration_str}")
+                        .replace("{{notes_count}}", notesCount)
+                        .replace("{{duration}}", durationStr)
                         .replace("{{year}}", currentYear);
                     el.innerHTML = text;
                 }}
             }});
+
+            // Update print button text
+            const printBtn = document.querySelector('.print-btn');
+            if (langData['print'] && printBtn) {{
+                printBtn.textContent = langData['print'];
+            }}
             
             // Update dropdown labels
             if (langData['language']) {{
@@ -587,7 +592,7 @@ def convert_file(input_path):
 <body>
     <div class="settings-menu">
         <div class="setting-group">
-            <div class="setting-label lang-label">Language</div>
+            <div class="setting-label lang-label" data-translate="language">Language</div>
             <select id="language-select" class="setting-select">
                 <option value="de">Deutsch</option>
                 <option value="en" selected>English</option>
@@ -600,7 +605,7 @@ def convert_file(input_path):
         </div>
         
         <div class="setting-group">
-            <div class="setting-label layout-label">Keyboard</div>
+            <div class="setting-label layout-label" data-translate="keyboard">Keyboard</div>
             <select id="layout-select" class="setting-select">
                 <option value="QWERTZ">QWERTZ</option>
                 <option value="QWERTY">QWERTY</option>
@@ -612,7 +617,7 @@ def convert_file(input_path):
             </select>
         </div>
         
-        <button class="print-btn" onclick="window.print()">Print</button>
+        <button class="print-btn" onclick="window.print()" data-translate="print">Print</button>
     </div>
     
     <div class="container">
