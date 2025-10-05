@@ -7,9 +7,6 @@ import sys
 import time
 import xml.etree.ElementTree as ET
 
-# Wiki URL for custom layouts
-CUSTOM_LAYOUT_WIKI_URL = "https://github.com/VanilleIce/SkySheet-to-HTML-Converter/wiki/Custom-Layouts"
-
 # Keyboard rows configuration
 ROWS = [
     ["Key0", "Key1", "Key2", "Key3", "Key4"],
@@ -588,7 +585,7 @@ def convert_file(input_path):
                 if (!layouts.CUSTOM) {{
                 alert("Custom layout file missing!\\n\\n" +
                         "Please create 'custom.xml' next to the application.\\n" +
-                        "See the wiki for instructions: {CUSTOM_LAYOUT_WIKI_URL}");
+                        "See the wiki for instructions: https://github.com/VanilleIce/SkySheet-to-HTML-Converter/wiki/Custom-Layouts");
                     const fallbackLayout = (currentLayout !== "CUSTOM" && layouts[currentLayout]) ? currentLayout : "QWERTZ";
                     document.getElementById("layout-select").value = fallbackLayout;
                     changeLayout(fallbackLayout);
