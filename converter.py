@@ -34,7 +34,13 @@ def resource_path(relative_path):
 
 def parse_key(raw_key):
     """Extract pure key name from JSON entry (e.g. 'NoteKey3' -> 'Key3')"""
-    return "Key" + raw_key.split("Key")[1]
+    if "Key" not in raw_key:
+        # Fallback für unerwartete Key-Formate
+        return raw_key
+    parts = raw_key.split("Key")
+    if len(parts) < 2:
+        return raw_key
+    return "Key" + parts[1]
 
 def load_translations():
     """Load all translation XML files from lang/ directory"""
@@ -110,6 +116,12 @@ def load_skysheet_file(file_path):
 
 def convert_file(input_path):
     """Convert SkySheet file to interactive HTML"""
+
+    def safe_html(text):
+        if text is None:
+            return ""
+        return str(text).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;').replace("'", '&#x27;')
+
     # Load translations and custom layout
     translations = load_translations()
     custom_layout = load_custom_layout()
@@ -124,15 +136,15 @@ def convert_file(input_path):
     
     song_data = data[0]
     notes = song_data['songNotes']
-    song_name = song_data.get('name', '')
+    song_name = safe_html(song_data.get('name', ''))
     
     # Use filename if song name is missing
     if not song_name:
         song_name = os.path.splitext(os.path.basename(input_path))[0]
     
     # Get author and transcribedBy if available
-    author = song_data.get('author')
-    transcribed_by = song_data.get('transcribedBy')
+    author = safe_html(song_data.get('author'))
+    transcribed_by = safe_html(song_data.get('transcribedBy'))
     
     # Format subtitle with labels
     subtitle_parts = []
@@ -142,7 +154,7 @@ def convert_file(input_path):
         subtitle_parts.append(f"Transcribed by: {transcribed_by}")
     subtitle = " | ".join(subtitle_parts) if subtitle_parts else None
 
-    safe_song_name = song_name.replace('"', '\\"').replace("'", "\\'")
+    safe_song_name = safe_html(song_name).replace('"', '\\"').replace("'", "\\'")
     
     # Process notes
     processed_notes = []
@@ -304,9 +316,9 @@ def convert_file(input_path):
             color: #ddd;
         }}
         .key.active {{
-            background-color: #f44336;
-            color: white;
-            border-color: #d32f2f;
+            background-color: #f44336 !important;
+            color: white !important;
+            border-color: #d32f2f !important;
         }}
         .key-label {{
             font-size: 24px;
@@ -481,11 +493,9 @@ def convert_file(input_path):
         }}
     </style>
     <script>
-        // Global variables for translation data
         const notesCount = {len(processed_notes)};
         const durationStr = {json.dumps(duration_str)};
         
-        // Layout definitions
         const layouts = {{
             "QWERTZ": {json.dumps(DEFAULT_LAYOUT)},
             "QWERTY": {{
@@ -522,7 +532,6 @@ def convert_file(input_path):
     html_content += f"""
         }};
         
-        // Language-layout mapping
         const langLayoutMap = {{
             "de": "QWERTZ",
             "en": "QWERTY",
@@ -533,36 +542,34 @@ def convert_file(input_path):
             "ja": "JIS"
         }};
         
-        // Translation dictionary
         const translations = {json.dumps(translations)};
         let currentLanguage = "en";
         let currentLayout = "QWERTZ";
         
-        // Change language
         function changeLanguage(lang) {{
             currentLanguage = lang;
             applyTranslations();
             
-            // Auto-select layout for language
             const suggestedLayout = langLayoutMap[lang] || "QWERTY";
             changeLayout(suggestedLayout);
             document.getElementById("layout-select").value = suggestedLayout;
         }}
         
-        // Change keyboard layout
         function changeLayout(layout) {{
-            // Check for custom layout file
             if (layout === "CUSTOM") {{
                 if (!layouts.CUSTOM) {{
-                    alert("Custom layout file missing!\\n\\n" +
-                          "Please create 'custom.xml' next to the application.\\n" +
-                          "See the wiki for instructions: {CUSTOM_LAYOUT_WIKI_URL}");
-                    document.getElementById("layout-select").value = "QWERTZ";
+                alert("Custom layout file missing!\\n\\n" +
+                        "Please create 'custom.xml' next to the application.\\n" +
+                        "See the wiki for instructions: {CUSTOM_LAYOUT_WIKI_URL}");
+                    const fallbackLayout = (currentLayout !== "CUSTOM" && layouts[currentLayout]) ? currentLayout : "QWERTZ";
+                    document.getElementById("layout-select").value = fallbackLayout;
+                    changeLayout(fallbackLayout);
                     return;
                 }}
             }}
             
             currentLayout = layout;
+            saveSettings();
             document.querySelectorAll('.key').forEach(key => {{
                 const keyId = key.getAttribute('data-key');
                 const newChar = layouts[layout][keyId];
@@ -572,12 +579,10 @@ def convert_file(input_path):
             }});
         }}
         
-        // Apply translations
         function applyTranslations() {{
             const langData = translations[currentLanguage] || {{}};
             const currentYear = new Date().getFullYear();
-            
-            // Update UI elements
+
             document.querySelectorAll('[data-translate]').forEach(el => {{
                 const key = el.getAttribute('data-translate');
                 if (langData[key]) {{
@@ -589,13 +594,11 @@ def convert_file(input_path):
                 }}
             }});
 
-            // Update print button text
             const printBtn = document.querySelector('.print-btn');
             if (langData['print'] && printBtn) {{
                 printBtn.textContent = langData['print'];
             }}
             
-            // Update dropdown labels
             if (langData['language']) {{
                 document.querySelector('.lang-label').textContent = langData['language'];
             }}
@@ -604,7 +607,6 @@ def convert_file(input_path):
             }}
         }}
         
-        // Initialize on load
         document.addEventListener('DOMContentLoaded', function() {{
             changeLanguage("en");
             changeLayout("QWERTZ");
@@ -655,8 +657,9 @@ def convert_file(input_path):
     
     # Add author/transcribedBy if available
     if subtitle:
+        safe_subtitle = safe_html(subtitle)
         html_content += f"""
-        <div class="author">{subtitle}</div>"""
+        <div class="author">{safe_subtitle}</div>"""
     
     html_content += f"""
         <div class="file-info" data-translate="notes">
