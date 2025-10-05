@@ -545,40 +545,7 @@ def convert_file(input_path):
         const translations = {json.dumps(translations)};
         let currentLanguage = "en";
         let currentLayout = "QWERTZ";
-        
-        function changeLanguage(lang) {{
-            currentLanguage = lang;
-            applyTranslations();
-            
-            const suggestedLayout = langLayoutMap[lang] || "QWERTY";
-            changeLayout(suggestedLayout);
-            document.getElementById("layout-select").value = suggestedLayout;
-        }}
-        
-        function changeLayout(layout) {{
-            if (layout === "CUSTOM") {{
-                if (!layouts.CUSTOM) {{
-                alert("Custom layout file missing!\\n\\n" +
-                        "Please create 'custom.xml' next to the application.\\n" +
-                        "See the wiki for instructions: {CUSTOM_LAYOUT_WIKI_URL}");
-                    const fallbackLayout = (currentLayout !== "CUSTOM" && layouts[currentLayout]) ? currentLayout : "QWERTZ";
-                    document.getElementById("layout-select").value = fallbackLayout;
-                    changeLayout(fallbackLayout);
-                    return;
-                }}
-            }}
-            
-            currentLayout = layout;
-            saveSettings();
-            document.querySelectorAll('.key').forEach(key => {{
-                const keyId = key.getAttribute('data-key');
-                const newChar = layouts[layout][keyId];
-                if (newChar) {{
-                    key.querySelector('.key-label').textContent = newChar;
-                }}
-            }});
-        }}
-        
+
         function applyTranslations() {{
             const langData = translations[currentLanguage] || {{}};
             const currentYear = new Date().getFullYear();
@@ -605,6 +572,38 @@ def convert_file(input_path):
             if (langData['keyboard']) {{
                 document.querySelector('.layout-label').textContent = langData['keyboard'];
             }}
+        }}
+
+        function changeLanguage(lang) {{
+            currentLanguage = lang;
+            applyTranslations();
+            
+            const suggestedLayout = langLayoutMap[lang] || "QWERTY";
+            changeLayout(suggestedLayout);
+            document.getElementById("layout-select").value = suggestedLayout;
+        }}
+        
+        function changeLayout(layout) {{
+            if (layout === "CUSTOM") {{
+                if (!layouts.CUSTOM) {{
+                alert("Custom layout file missing!\\n\\n" +
+                        "Please create 'custom.xml' next to the application.\\n" +
+                        "See the wiki for instructions: {CUSTOM_LAYOUT_WIKI_URL}");
+                    const fallbackLayout = (currentLayout !== "CUSTOM" && layouts[currentLayout]) ? currentLayout : "QWERTZ";
+                    document.getElementById("layout-select").value = fallbackLayout;
+                    changeLayout(fallbackLayout);
+                    return;
+                }}
+            }}
+            
+            currentLayout = layout;
+            document.querySelectorAll('.key').forEach(key => {{
+                const keyId = key.getAttribute('data-key');
+                const newChar = layouts[layout][keyId];
+                if (newChar) {{
+                    key.querySelector('.key-label').textContent = newChar;
+                }}
+            }});
         }}
         
         document.addEventListener('DOMContentLoaded', function() {{
