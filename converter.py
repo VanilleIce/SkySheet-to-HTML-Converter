@@ -32,7 +32,7 @@ import customtkinter as ctk
 
 # ==================== Konstanten ====================
 
-VERSION = "1.0.0"
+VERSION = "2.0.0"
 
 # Fenster-Größen (exakt)
 DEFAULT_WINDOW_SIZE = (520, 760)
