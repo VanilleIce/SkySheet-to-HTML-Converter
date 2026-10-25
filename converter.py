@@ -296,27 +296,34 @@ def convert_to_txt(input_path, non_empty_intervals, song_name, duration_str,
 # ==================== PNG output ====================
 
 def convert_to_png(input_path, non_empty_intervals, song_name, duration_str,
-                   layout, out_dir, layout_suffix=None, chords_per_row=2):
+                   layout, out_dir, layout_suffix=None, chords_per_row=4):
+    """Render chord sheet as multiple A4-sized PNG pages (150 DPI).
+
+    Returns a list of output paths (one per page).
+    """
     try:
         from PIL import Image, ImageDraw, ImageFont
     except ImportError:
-        return None
+        return []
 
-    KEY_W, KEY_H = 90, 40
-    KEY_GAP, ROW_GAP = 10, 10
-    CHORD_W = 5 * KEY_W + 4 * KEY_GAP + 30
-    CHORD_H = 3 * KEY_H + 2 * ROW_GAP + 30 + 30
-    ARROW_W = 40
-    PADDING = 30
-    HEADER_H = 110
-    ROW_H = CHORD_H + 30
-    BOTTOM_H = 60
+    # A4 landscape at 150 DPI: 1754 x 1240 px
+    # We leave margins, so usable area is ~1650 x 1100
+    PAGE_W = 1754
+    PAGE_H = 1240
+    MARGIN = 40
+    USABLE_W = PAGE_W - 2 * MARGIN
+    USABLE_H = PAGE_H - 2 * MARGIN
 
-    groups = [non_empty_intervals[i:i + chords_per_row]
-              for i in range(0, len(non_empty_intervals), chords_per_row)]
+    # Compact chord cards
+    KEY_W, KEY_H = 60, 28
+    KEY_GAP, ROW_GAP = 6, 6
+    CHORD_W = 5 * KEY_W + 4 * KEY_GAP + 20
+    CHORD_H = 3 * KEY_H + 2 * ROW_GAP + 20 + 24
+    ARROW_W = 30
+    ROW_H = CHORD_H + 20
 
-    width = PADDING * 2 + chords_per_row * CHORD_W + (chords_per_row - 1) * ARROW_W
-    height = HEADER_H + len(groups) * ROW_H + BOTTOM_H
+    # Header only on first page
+    HEADER_H = 90
 
     def _font(size):
         for candidate in ("DejaVuSans-Bold.ttf", "Arial.ttf", "arial.ttf"):
@@ -326,69 +333,121 @@ def convert_to_png(input_path, non_empty_intervals, song_name, duration_str,
                 continue
         return ImageFont.load_default()
 
-    font_title = _font(28)
-    font_info = _font(16)
-    font_key = _font(22)
-    font_label = _font(14)
+    font_title = _font(22)
+    font_info = _font(12)
+    font_key = _font(16)
+    font_label = _font(11)
+    font_page = _font(10)
 
-    img = Image.new("RGB", (width, height), "white")
-    draw = ImageDraw.Draw(img)
+    # Determine how many chords fit per row
+    max_cols = max(1, (USABLE_W + ARROW_W) // (CHORD_W + ARROW_W))
+    if chords_per_row is None or chords_per_row > max_cols:
+        chords_per_row = max_cols
 
-    draw.text((PADDING, 15), song_name, fill="black", font=font_title)
-    draw.text((PADDING, 55),
-              f"Duration: {duration_str} | Chords: {len(non_empty_intervals)} | "
-              f"Layout: {layout_suffix or 'QWERTZ'}",
-              fill="#444", font=font_info)
-    draw.text((PADDING, 80),
-              "Press keys on the same card together. Cards go left to right, top to bottom.",
-              fill="#666", font=font_info)
+    # Build groups of chords (one row each)
+    groups = [non_empty_intervals[i:i + chords_per_row]
+              for i in range(0, len(non_empty_intervals), chords_per_row)]
 
-    y0 = HEADER_H
-    for gi, group in enumerate(groups):
-        y = y0 + gi * ROW_H
-        for ci, interval in enumerate(group):
-            x = PADDING + ci * (CHORD_W + ARROW_W)
-            draw.rectangle([x, y, x + CHORD_W, y + CHORD_H],
-                           outline="#333", width=2, fill="#fafafa")
+    # Split groups into pages
+    # First page has header, so less space for rows
+    rows_first_page = max(1, (USABLE_H - HEADER_H) // ROW_H)
+    rows_other_pages = max(1, USABLE_H // ROW_H)
 
-            ky = y + 15
-            for row in ROWS:
-                kx = x + 15
-                for key_id in row:
-                    active = key_id in interval['keys']
-                    draw.rectangle([kx, ky, kx + KEY_W, ky + KEY_H],
-                                   outline="#cc0000" if active else "#666",
-                                   width=2,
-                                   fill="#ffcccc" if active else "#f0f0f0")
-                    ch = layout.get(key_id, key_id)
-                    bbox = draw.textbbox((0, 0), ch, font=font_key)
-                    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-                    draw.text((kx + (KEY_W - tw) / 2 - bbox[0],
-                               ky + (KEY_H - th) / 2 - bbox[1]),
-                              ch, fill="black", font=font_key)
-                    kx += KEY_W + KEY_GAP
-                ky += KEY_H + ROW_GAP
+    pages = []
+    idx = 0
+    while idx < len(groups):
+        if not pages:
+            capacity = rows_first_page
+        else:
+            capacity = rows_other_pages
+        pages.append(groups[idx:idx + capacity])
+        idx += capacity
 
-            if ci < len(group) - 1:
-                ax = x + CHORD_W + ARROW_W / 2
-                ay = y + CHORD_H / 2
-                draw.text((ax - 8, ay - 10), "→", fill="#0066cc", font=font_key)
-
-        if gi == 0:
-            draw.text((PADDING, y - 20), "START", fill="#006600", font=font_label)
-        if gi == len(groups) - 1:
-            last_x = PADDING + (len(group) - 1) * (CHORD_W + ARROW_W)
-            draw.text((last_x + CHORD_W - 40, y - 20), "END", fill="#cc0000", font=font_label)
-
-    draw.text((PADDING, height - BOTTOM_H + 20),
-              f"Generated by SkySheet Converter – {time.strftime('%Y')}",
-              fill="#888", font=font_info)
-
+    total_pages = len(pages)
     base = os.path.splitext(os.path.basename(input_path))[0]
     suffix = f"_{layout_suffix}" if layout_suffix else ""
-    output_path = os.path.join(out_dir, base + suffix + '.png')
-    img.save(output_path)
-    return output_path
+
+    outputs = []
+
+    for page_num, page_groups in enumerate(pages, start=1):
+        img = Image.new("RGB", (PAGE_W, PAGE_H), "white")
+        draw = ImageDraw.Draw(img)
+
+        # Header only on first page
+        y_offset = MARGIN
+        if page_num == 1:
+            draw.text((MARGIN, y_offset), song_name, fill="black", font=font_title)
+            y_offset += 32
+            draw.text((MARGIN, y_offset),
+                      f"Duration: {duration_str} | Chords: {len(non_empty_intervals)} | "
+                      f"Layout: {layout_suffix or 'QWERTZ'}",
+                      fill="#444", font=font_info)
+            y_offset += 22
+            draw.text((MARGIN, y_offset),
+                      "Press keys on the same card together. Cards go left to right, "
+                      "top to bottom.",
+                      fill="#666", font=font_info)
+            y_offset += 22
+            y_offset += 14  # gap before first row
+        else:
+            y_offset = MARGIN
+
+        # Draw chords for this page
+        for gi, group in enumerate(page_groups):
+            y = y_offset + gi * ROW_H
+            for ci, interval in enumerate(group):
+                x = MARGIN + ci * (CHORD_W + ARROW_W)
+                draw.rectangle([x, y, x + CHORD_W, y + CHORD_H],
+                               outline="#333", width=1, fill="#fafafa")
+
+                ky = y + 10
+                for row in ROWS:
+                    kx = x + 10
+                    for key_id in row:
+                        active = key_id in interval['keys']
+                        draw.rectangle([kx, ky, kx + KEY_W, ky + KEY_H],
+                                       outline="#cc0000" if active else "#666",
+                                       width=1,
+                                       fill="#ffcccc" if active else "#f0f0f0")
+                        ch = layout.get(key_id, key_id)
+                        bbox = draw.textbbox((0, 0), ch, font=font_key)
+                        tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+                        draw.text((kx + (KEY_W - tw) / 2 - bbox[0],
+                                   ky + (KEY_H - th) / 2 - bbox[1]),
+                                  ch, fill="black", font=font_key)
+                        kx += KEY_W + KEY_GAP
+                    ky += KEY_H + ROW_GAP
+
+                if ci < len(group) - 1:
+                    ax = x + CHORD_W + ARROW_W / 2
+                    ay = y + CHORD_H / 2
+                    draw.text((ax - 6, ay - 8), "→", fill="#0066cc", font=font_key)
+
+            # START / END labels
+            if page_num == 1 and gi == 0:
+                draw.text((MARGIN, y - 14), "START", fill="#006600", font=font_label)
+            if page_num == total_pages and gi == len(page_groups) - 1:
+                last_x = MARGIN + (len(group) - 1) * (CHORD_W + ARROW_W)
+                draw.text((last_x + CHORD_W - 30, y - 14), "END",
+                          fill="#cc0000", font=font_label)
+
+        # Footer: page number + branding
+        footer_text = (
+            f"Generated by SkySheet Converter – {time.strftime('%Y')}   "
+            f"Page {page_num} / {total_pages}"
+        )
+        draw.text((MARGIN, PAGE_H - MARGIN - 15), footer_text,
+                  fill="#888", font=font_page)
+
+        # Save
+        if total_pages == 1:
+            out_path = os.path.join(out_dir, base + suffix + '.png')
+        else:
+            out_path = os.path.join(out_dir, base + suffix + f'_{page_num}.png')
+        img.save(out_path)
+        outputs.append(out_path)
+
+    return outputs
 
 
 # ==================== HTML output ====================
@@ -738,10 +797,11 @@ def convert_file(input_path, make_html=True, make_txt=True, make_png=True,
                                           duration_str, layout_data, out_dir, suffix))
         if make_png:
             log(f"Writing PNG ({lname})...")
-            p = convert_to_png(input_path, intervals, raw_name, duration_str,
-                               layout_data, out_dir, suffix)
-            if p:
-                outputs.append(p)
+            png_paths = convert_to_png(input_path, intervals, raw_name, duration_str,
+                                       layout_data, out_dir, suffix)
+            if png_paths:
+                outputs.extend(png_paths)
+                log(f"  -> {len(png_paths)} page(s)")
             else:
                 log("  (Pillow missing – PNG skipped)")
 
