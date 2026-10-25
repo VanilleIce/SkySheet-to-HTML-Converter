@@ -1,0 +1,6 @@
+# SkySheetConverter - Requirements
+# Python 3.10+
+
+customtkinter==6.0.0
+pillow==13.0.0
+pyinstaller==6.22.3
